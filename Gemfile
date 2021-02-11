@@ -30,7 +30,17 @@ gem 'bootsnap', '>= 1.1.0', require: false
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'rspec-rails'
+  gem 'capybara'
+  gem 'launchy'
+  gem 'simplecov'
+  gem 'pry'
+  gem 'shoulda-matchers'
+  gem "orderly"
+  gem "awesome_print", :require => "ap"
+  gem "hirb"
+  gem 'factory_bot_rails' # When needing to create model factories
+  gem 'nyan-cat-formatter' # Optional CLI colorful craziness
 end
 
 group :development do
