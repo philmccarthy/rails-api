@@ -39,8 +39,9 @@ group :development, :test do
   gem "orderly"
   gem "awesome_print", :require => "ap"
   gem "hirb"
-  gem 'factory_bot_rails' # When needing to create model factories
-  gem 'nyan-cat-formatter' # Optional CLI colorful craziness
+  gem 'factory_bot_rails'
+  gem 'faker'
+  gem 'nyan-cat-formatter'
 end
 
 group :development do
