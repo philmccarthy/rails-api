@@ -73,12 +73,62 @@ describe 'items API' do
   end
 
   describe 'sad path' do
-    it 'it returns 404 if the item does not exist' do
+    it 'returns 404 if the item does not exist' do
       non_existent_id = 1231231
 
       get "/api/v1/items/#{non_existent_id}"
 
-      expect(response).to be_unsuccessful
+      expect(response).to_not be_successful
+
+      actual_body = JSON.parse(response.body, symbolize_names: true)
+      expected_body = {
+        message: "Your query could not be executed...what have you done?",
+        errors: [
+          "Couldn't find Item with 'id'=1231231"
+        ]
+      }
+
+      expect(actual_body).to eq(expected_body)
+    end
+
+    it 'can create an item' do
+      item_params = attributes_for(:item)
+      headers = { "CONTENT_TYPE" => "application/json" }
+
+      post '/api/v1/items', headers: headers, params: JSON.generate(item_params)
+      created_item = Item.last
+      
+      expect(response).to be_successful
+      expect(created_item.name).to eq(item_params[:name])
+      expect(created_item.description).to eq(item_params[:description])
+      expect(created_item.unit_price.to_f).to eq(item_params[:unit_price])
+      expect(created_item.merchant_id).to eq(item_params[:merchant_id])
+      
+      expected_body = {
+        data: {
+          id: created_item.id.to_s,
+          type: 'item',
+          attributes: {
+            name: created_item.name,
+            description: created_item.description,
+            unit_price: created_item.unit_price.to_f,
+            merchant_id: created_item.merchant_id
+          }
+        }
+      }
+      actual_body = JSON.parse(response.body, symbolize_names: true)
+
+      expect(actual_body).to eq(expected_body)
+    end
+
+    it 'can destroy an item' do
+      item = create(:item)
+      
+      expect{ delete "/api/v1/items/#{item.id}" }.to change(Item, :count).by(-1)
+
+      expect(response).to be_successful
+
+      expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 end

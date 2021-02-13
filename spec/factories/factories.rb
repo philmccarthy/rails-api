@@ -3,7 +3,7 @@ FactoryBot.define do
     name { Faker::Food.spice }
     description { Faker::Food.description }
     unit_price { Faker::Number.decimal(l_digits: 2) }
-    merchant
+    merchant_id { create(:merchant).id }
   end
 
   factory :merchant do
@@ -26,6 +26,6 @@ FactoryBot.define do
   end
 
   # factory :invoice do
-  #   status { [:pending ] }
+  #   status { }
   # end
 end
