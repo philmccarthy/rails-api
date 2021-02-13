@@ -1,4 +1,7 @@
 class ApplicationController < ActionController::API
+  rescue_from ActiveRecord::RecordInvalid, with: :render_unprocessable_entity_response
+  rescue_from ActiveRecord::RecordNotFound, with: :render_not_found_response
+
   def results_per_page
     return params[:per_page].to_i if params[:per_page].to_i > 0
     20
@@ -7,5 +10,25 @@ class ApplicationController < ActionController::API
   def page_number
     return params[:page].to_i if params[:page].to_i >= 1
     1
+  end
+
+  def render_not_found_response(exception)
+    render json: 
+      {
+        message: 'Your query could not be executed...what have you done?',
+        errors: [
+          exception.message
+        ] 
+      }, 
+      status: :not_found
+  end
+
+  def render_invalid_record_response(exception)
+    render json: 
+      {
+        message: 'Your request failed...perhaps you could be better.',
+        errors: exception.record.errors
+      },
+      status: :unprocessable_entity
   end
 end
