@@ -26,9 +26,6 @@ describe 'merchants API' do
         expect(merchant).to have_key :attributes
         expect(merchant[:attributes]).to be_a Hash
 
-        expect(merchant[:attributes]).to have_key :id
-        expect(merchant[:attributes][:id]).to be_an Integer
-
         expect(merchant[:attributes]).to have_key :name
         expect(merchant[:attributes][:name]).to be_a String
       end
@@ -63,17 +60,17 @@ describe 'merchants API' do
       page_5_merchants = JSON.parse(response.body, symbolize_names: true)
 
       check_for_correct_merchant = page_5_merchants[:data].any? do |merchant| 
-          merchant[:attributes][:id] == merchant_on_page_5.id
-        end
+        merchant[:id] == merchant_on_page_5.id.to_s
+      end
       
       check_for_page_1_merchant = page_5_merchants[:data].any? do |merchant| 
-        merchant[:attributes][:id] == merchant_on_page_1.id
+        merchant[:id] == merchant_on_page_1.id.to_s
       end
       
       check_for_last_page_merchant = page_5_merchants[:data].any? do |merchant| 
-        merchant[:attributes][:id] == merchant_on_last_page.id
+        merchant[:id] == merchant_on_last_page.id.to_s
       end
-      
+
       expect(check_for_correct_merchant).to be true
       expect(check_for_page_1_merchant).to be false
       expect(check_for_last_page_merchant).to be false
@@ -122,11 +119,11 @@ describe 'merchants API' do
       expect(merchant[:data]).to have_key :type
       expect(merchant[:data][:type]).to be_a String
 
+      expect(merchant[:data]).to have_key :id
+      expect(merchant[:data][:id]).to be_a String
+
       expect(merchant[:data]).to have_key :attributes
       expect(merchant[:data][:attributes]).to be_a Hash
-
-      expect(merchant[:data][:attributes]).to have_key :id
-      expect(merchant[:data][:attributes][:id]).to be_an Integer
 
       expect(merchant[:data][:attributes]).to have_key :name
       expect(merchant[:data][:attributes][:name]).to be_a String
