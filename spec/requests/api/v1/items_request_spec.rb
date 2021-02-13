@@ -130,5 +130,20 @@ describe 'items API' do
 
       expect{Item.find(item.id)}.to raise_error(ActiveRecord::RecordNotFound)
     end
+
+    it 'can update an item' do
+      og_item = create(:item)
+      og_name = og_item.name
+      item_params = { name: 'FRESH NEW NEW Spice' }
+      headers = { "CONTENT_TYPE" => 'application/json' }
+
+      patch "/api/v1/items/#{og_item.id}", headers: headers, params: JSON.generate(item_params)
+
+      updated_item = Item.find(og_item.id)
+
+      expect(response).to be_successful
+      expect(updated_item.name).to_not eq(og_name)
+      expect(updated_item.name).to eq(item_params[:name])
+    end
   end
 end
