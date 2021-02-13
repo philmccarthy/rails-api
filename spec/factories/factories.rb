@@ -4,6 +4,16 @@ FactoryBot.define do
     description { Faker::Food.description }
     unit_price { Faker::Number.decimal(l_digits: 2) }
     merchant_id { create(:merchant).id }
+
+    factory :item_with_invoices do
+      transient do
+        invoice_count { 5 }
+      end
+
+      after(:create) do |item, evaluator|
+        create_list(:invoice_item, evaluator.invoice_count, item: item)
+      end
+    end
   end
 
   factory :merchant do
@@ -25,7 +35,16 @@ FactoryBot.define do
     last_name { Faker::Name.last_name }
   end
 
-  # factory :invoice do
-  #   status { }
-  # end
+  factory :invoice_item do
+    item { create(:item) }
+    invoice { create(:invoice) }
+    quantity { Faker::Number.within(range: 1..10) }
+    unit_price { Faker::Number.decimal(l_digits: 2) }
+  end
+
+  factory :invoice do
+    customer { create(:customer) }
+    merchant { create(:merchant) }
+    status { ['packaged', 'shipped', 'returned'].sample }
+  end
 end
