@@ -5,6 +5,6 @@ class ItemSerializer
     item.unit_price.to_f
   end
   attribute :merchant_id do |item|
-    item.id.to_i
+    item.merchant_id.to_i
   end
 end
