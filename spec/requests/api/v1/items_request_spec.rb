@@ -71,4 +71,14 @@ describe 'items API' do
       expect(item[:data][:attributes][:merchant_id]).to be_a Numeric
     end
   end
+
+  describe 'sad path' do
+    it 'it returns 404 if the item does not exist' do
+      non_existent_id = 1231231
+
+      get "/api/v1/items/#{non_existent_id}"
+
+      expect(response).to be_unsuccessful
+    end
+  end
 end
