@@ -5,4 +5,7 @@ class Item < ApplicationRecord
   has_many :customers, through: :invoices
   
   validates :merchant, presence: true
+  validates :name, presence: true
+  validates :description, presence: true
+  validates :unit_price, numericality: { greater_than: 0 }
 end
