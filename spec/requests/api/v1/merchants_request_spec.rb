@@ -75,7 +75,84 @@ describe 'merchants API' do
       expect(check_for_page_1_merchant).to be false
       expect(check_for_last_page_merchant).to be false
     end
+
+    it 'can get one merchant by its id' do
+      id = create(:merchant).id
+
+      get "/api/v1/merchants/#{id}"
+
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to be_successful
+
+      expect(merchant).to have_key :data
+      expect(merchant).to be_a Hash
+
+      expect(merchant[:data]).to have_key :type
+      expect(merchant[:data][:type]).to be_a String
+
+      expect(merchant[:data]).to have_key :id
+      expect(merchant[:data][:id]).to be_a String
+
+      expect(merchant[:data]).to have_key :attributes
+      expect(merchant[:data][:attributes]).to be_a Hash
+
+      expect(merchant[:data][:attributes]).to have_key :name
+      expect(merchant[:data][:attributes][:name]).to be_a String
+    end
+
+    it 'returns the merchant associated with an item' do
+      create(:merchant_with_items)
+      item = Item.first
+      merchant_name = item.merchant.name
+      
+      get "/api/v1/items/#{item.id}/merchant"
+
+      merchant = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to be_successful
+
+      expect(merchant[:data][:attributes][:name]).to eq(merchant_name)
+      
+      expect(merchant).to have_key :data
+      expect(merchant).to be_a Hash
+      
+      expect(merchant[:data]).to have_key :type
+      expect(merchant[:data][:type]).to be_a String
+      
+      expect(merchant[:data]).to have_key :id
+      expect(merchant[:data][:id]).to be_a String
+      
+      expect(merchant[:data]).to have_key :attributes
+      expect(merchant[:data][:attributes]).to be_a Hash
+      
+      expect(merchant[:data][:attributes]).to have_key :name
+      expect(merchant[:data][:attributes][:name]).to be_a String
+    end
+
+    it 'finds all merchants by search criteria' do
+      merch_1 = create(:merchant, name: 'Merchez One')
+      merch_2 = create(:merchant, name: 'Merchant Two')
+      merch_3 = create(:merchant, name: 'Merchea Three')
+      excluded_merch = create(:merchant, name: 'Plopadopalous')
+
+      get '/api/v1/merchants/find_all', params: { name: 'merch' }
+
+      expect(response).to be_successful
+
+      merchants = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchants[:data].count).to eq(3)
+      
+      merchant_names = merchants[:data].map do |merchant| 
+        merchant[:attributes][:name]
+      end
+      
+      expect(merchant_names).to eq([merch_2.name, merch_3.name, merch_1.name])
+    end
   end
+
+  # --> SAD PATH <--
 
   describe 'sad path' do
     it 'returns page 1 if given a pagination request for page 0 or negative' do
@@ -102,31 +179,6 @@ describe 'merchants API' do
 
       expect(response).to be_successful
       expect(merchants[:data].size).to eq(20)
-    end
-
-    it 'can get one merchant by its id' do
-      id = create(:merchant).id
-
-      get "/api/v1/merchants/#{id}"
-
-      merchant = JSON.parse(response.body, symbolize_names: true)
-
-      expect(response).to be_successful
-
-      expect(merchant).to have_key :data
-      expect(merchant).to be_a Hash
-
-      expect(merchant[:data]).to have_key :type
-      expect(merchant[:data][:type]).to be_a String
-
-      expect(merchant[:data]).to have_key :id
-      expect(merchant[:data][:id]).to be_a String
-
-      expect(merchant[:data]).to have_key :attributes
-      expect(merchant[:data][:attributes]).to be_a Hash
-
-      expect(merchant[:data][:attributes]).to have_key :name
-      expect(merchant[:data][:attributes][:name]).to be_a String
     end
   end
 end

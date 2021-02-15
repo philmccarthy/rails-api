@@ -1,26 +1,24 @@
 class Api::V1::ItemsController < ApplicationController
+  before_action :set_merchant, only: [:index]
+
   def index
-    render json: ItemSerializer.new(
-      Item.retrieve_many results_per_page, page_number
-    )
+    if @merchant
+      render json: ItemSerializer.new(@merchant.items)
+    else
+      render json: ItemSerializer.new(Item.retrieve_many results_per_page, page_number)
+    end
   end
 
   def show
-    render json: ItemSerializer.new(
-      Item.find params[:id]
-    )
+    render json: ItemSerializer.new(Item.find params[:id])
   end
 
   def create
-    render json: ItemSerializer.new(
-      Item.create!(item_params)
-    ), status: :created
+    render json: ItemSerializer.new(Item.create!(item_params)), status: :created
   end
 
   def update
-    render json: ItemSerializer.new(
-      Item.update(params[:id], item_params)
-    )
+    render json: ItemSerializer.new(Item.update(params[:id], item_params))
   end
 
   def destroy
@@ -30,6 +28,17 @@ class Api::V1::ItemsController < ApplicationController
   private
 
   def item_params
-    params.require(:item).permit(:name, :description, :unit_price, :merchant_id)
+    if params[:merchant_id]
+      Merchant.find(params[:merchant_id])
+      params.require(:item).permit(:name, :description, :unit_price, :merchant_id)
+    else
+      params.require(:item).permit(:name, :description, :unit_price)
+    end
+  end
+
+  def set_merchant
+    if params[:merchant_id]
+      @merchant = Merchant.find(params[:merchant_id])
+    end
   end
 end
