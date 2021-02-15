@@ -23,11 +23,11 @@ class ApplicationController < ActionController::API
       status: :not_found
   end
 
-  def render_invalid_record_response(exception)
+  def render_unprocessable_entity_response(exception)
     render json: 
       {
         message: 'Your request failed...perhaps you could be better.',
-        errors: exception.record.errors
+        errors: exception.record.errors.full_messages
       },
       status: :unprocessable_entity
   end
