@@ -40,7 +40,7 @@ describe 'items API' do
       end
     end
 
-    it 'can get one item by its id' do
+    it 'returns data for one item when requested by its id' do
       id = create(:item).id
 
       get "/api/v1/items/#{id}"
@@ -71,7 +71,7 @@ describe 'items API' do
       expect(item[:data][:attributes][:merchant_id]).to be_a Numeric
     end
 
-    it 'returns the items associated with a merchant' do
+    it 'returns all items that belong to a requested merchant id' do
       merchant = create(:merchant_with_items)
 
       get "/api/v1/merchants/#{merchant.id}/items"
@@ -84,32 +84,9 @@ describe 'items API' do
       expect(items[:data]).to be_an Array
 
       expect(items[:data].size).to eq(10)
-
-      items[:data].each do |item|
-        expect(item).to have_key :id
-        expect(item[:id]).to be_a String
-
-        expect(item).to have_key :type
-        expect(item[:type]).to be_a String
-
-        expect(item).to have_key :attributes
-        expect(item[:attributes]).to be_a Hash
-
-        expect(item[:attributes]).to have_key :name
-        expect(item[:attributes][:name]).to be_a String
-        
-        expect(item[:attributes]).to have_key :description
-        expect(item[:attributes][:description]).to be_a String
-        
-        expect(item[:attributes]).to have_key :unit_price
-        expect(item[:attributes][:unit_price]).to be_a Numeric
-        
-        expect(item[:attributes]).to have_key :merchant_id
-        expect(item[:attributes][:merchant_id]).to be_a Numeric
-      end
     end
 
-    it 'can create an item' do
+    it "can accept a request to create an item and return that new item's data" do
       item_params = attributes_for(:item)
       headers = { "CONTENT_TYPE" => "application/json" }
 
@@ -137,7 +114,6 @@ describe 'items API' do
       expect(created_item.description).to eq(item_params[:description])
       expect(created_item.unit_price.to_f).to eq(item_params[:unit_price])
       expect(created_item.merchant_id).to eq(item_params[:merchant_id])
-      
     end
 
     it 'can destroy an item' do
@@ -167,7 +143,7 @@ describe 'items API' do
   end
 
   describe 'sad path' do
-    it 'returns 404 if the item does not exist' do
+    it 'returns 404 if a requested item does not exist' do
       non_existent_id = 1231231
 
       get "/api/v1/items/#{non_existent_id}"
@@ -193,6 +169,50 @@ describe 'items API' do
       patch "/api/v1/items/#{og_item.id}", headers: headers, params: JSON.generate(item_params)
 
       expect(response).to_not be_successful
+    end
+
+    it 'returns error messages if an Update request fails item model validations' do
+      og_item = create(:item)
+      item_params = { unit_price: -100, name: '', description: '' }
+      headers = { "CONTENT_TYPE" => 'application/json' }
+      
+      patch "/api/v1/items/#{og_item.id}", headers: headers, params: JSON.generate(item_params)
+      
+      expected_errors = {
+        message: "Your request failed...perhaps you could be better.",
+        errors: [
+          "Name can't be blank",
+          "Description can't be blank",
+          "Unit price must be greater than 0"
+        ]
+      }
+
+      actual_errors = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to_not be_successful
+      expect(actual_errors).to be_a Hash
+      expect(actual_errors).to have_key :message
+      expect(actual_errors).to have_key :errors
+      expect(actual_errors).to eq(expected_errors)
+    end
+
+    it 'returns error messages if a Create request fails item model validations' do
+      item_params = attributes_for(:item, unit_price: -100)
+      headers = { "CONTENT_TYPE" => "application/json" }
+
+      post '/api/v1/items', headers: headers, params: JSON.generate(item_params)
+      
+      expected_errors = {
+        message: "Your request failed...perhaps you could be better.",
+        errors: [
+          "Unit price must be greater than 0"
+        ]
+      }
+
+      actual_errors = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to_not be_successful
+      expect(actual_errors).to eq(expected_errors)
     end
   end
 end
