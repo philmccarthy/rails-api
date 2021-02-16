@@ -28,8 +28,17 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find
-    item_match = Item.find_one(params)
-    item_match.present? ? (render json: ItemSerializer.new(item_match)) : (render json: { data: {} })
+    if params[:name] && (params[:min_price] || params[:max_price])
+      render json: {
+        message: 'Invalid Parameters',
+        errors: [
+          'Cannot combine name and either min_price or max_price. Try again.'
+        ], 
+      }
+    else
+      item_match = Item.find_one(params)
+      item_match.present? ? (render json: ItemSerializer.new(item_match)) : (render json: { data: {} })
+    end
   end
 
   private
