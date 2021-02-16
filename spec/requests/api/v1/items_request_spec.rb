@@ -194,9 +194,70 @@ describe 'items API requests' do
       search_params = { name: 'diff' }
       get '/api/v1/items/find', params: search_params
 
-      # If no item names match query return one item with a matching description.
+      # If no items.name match, return an items.description match.
       search_result = JSON.parse(response.body, symbolize_names: true)
       expect(search_result[:data][:attributes][:description]).to eq('A description that is different.')
+    end
+
+    it 'can return one item by search of MIN price with result based on order by name' do
+      create(:item, name: 'Alphabet Soup', unit_price: 7.50)
+      create(:item, name: 'Alphabet GOOG', unit_price: 5.50)
+      
+      search_params = { min_price: 5 }
+      get '/api/v1/items/find', params: search_params
+
+      search_result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(search_result[:data][:attributes][:name]).to eq('Alphabet GOOG')
+    end
+
+    it 'can return an equal-to exact min_price match' do
+      create(:item, name: 'Alphabet Soup', unit_price: 7.50)
+      create(:item, name: 'Alphabet GOOG', unit_price: 5.50)
+
+      search_params = { min_price: 7.50 }
+      get '/api/v1/items/find', params: search_params
+
+      search_result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(search_result[:data][:attributes][:name]).to eq('Alphabet Soup')
+    end
+    
+    it 'can return one item by search of MAX price with result based on order by name' do
+      create(:item, name: 'Alphabet Soup', unit_price: 7.50)
+      create(:item, name: 'Alphabet GOOG', unit_price: 8.50)
+      
+      search_params = { max_price: 8.00 }
+      get '/api/v1/items/find', params: search_params
+
+      search_result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(search_result[:data][:attributes][:name]).to eq('Alphabet Soup')
+    end
+
+    it 'can return one result by max price when two match based on order by name' do
+      create(:item, name: 'Alphabet Soup', unit_price: 7.50)
+      create(:item, name: 'Alphabet GOOG', unit_price: 5.50)
+
+      search_params = { max_price: 7.50 }
+      get '/api/v1/items/find', params: search_params
+
+      search_result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(search_result[:data][:attributes][:name]).to eq('Alphabet GOOG')
+    end
+
+    it 'can return one item by search of MIN & MAX prices with result based on order by name' do
+      create(:item, name: 'Backwards Alphabet', unit_price: 5.50)
+      create(:item, name: 'Alphabet Soup', unit_price: 7.50)
+      create(:item, name: 'Alphabet GOOG', unit_price: 5.00)
+      
+      search_params = { min_price: 5.50, max_price: 7.50 }
+      get '/api/v1/items/find', params: search_params
+
+      search_result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(search_result[:data][:attributes][:name]).to eq('Alphabet Soup')
     end
   end
 
@@ -276,7 +337,6 @@ describe 'items API requests' do
     end
 
     it 'when find one item query has no matches it successfully renders json with an empty hash' do
-      # Return the first match based on alphabetical order
       search_params = { name: 'no items exist!' }
 
       get '/api/v1/items/find', params: search_params
@@ -286,6 +346,21 @@ describe 'items API requests' do
       expect(search_result).to have_key :data
       expect(search_result[:data]).to be_a Hash
       expect(search_result[:data].keys).to be_empty
+    end
+
+    it 'throws an error if the find one endpoint is given name and either/both price params' do
+      search_params = { name: 'All the things', min_price: 50, max_price: 100 }
+
+      get '/api/v1/items/find', params: search_params
+      
+      search_result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(search_result).to have_key :message
+      expect(search_result[:message]).to eq('Invalid Parameters')
+      
+      expect(search_result).to have_key :errors
+      expect(search_result[:errors].first).to be_a String
+      expect(search_result[:errors].first).to eq('Cannot combine name and either min_price or max_price. Try again.')
     end
   end
 end
