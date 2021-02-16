@@ -27,6 +27,11 @@ class Api::V1::ItemsController < ApplicationController
     Item.destroy(params[:id])
   end
 
+  def find
+    item_match = Item.find_one(params)
+    item_match.present? ? (render json: ItemSerializer.new(item_match)) : (render json: { data: {} })
+  end
+
   private
 
   def item_params

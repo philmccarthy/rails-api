@@ -152,7 +152,7 @@ describe 'merchants API' do
     end
   end
 
-  # --> SAD PATH <--
+  # --> SAD PATH
 
   describe 'sad path' do
     it 'returns page 1 if given a pagination request for page 0 or negative' do
@@ -179,6 +179,19 @@ describe 'merchants API' do
 
       expect(response).to be_successful
       expect(merchants[:data].size).to eq(20)
+    end
+
+    it 'find all merchants endpoint returns an empty array if given an empty string parameter' do
+      create_list(:merchant, 3)
+
+      get '/api/v1/merchants/find_all', params: { name: '' }
+
+      expect(response).to be_successful
+
+      merchants = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchants[:data]).to be_an Array
+      expect(merchants[:data]).to be_empty
     end
   end
 end

@@ -5,9 +5,10 @@ class Merchant < ApplicationRecord
   has_many :customers, through: :invoices
 
   class << self
-    def search_by_name(name)
-      where('lower(name) LIKE ?', "%#{name.downcase}%").
-      order(:name)
-    end
+    # def find_all(name)
+    #   return [] if name.blank?
+    #   where('lower(name) LIKE ?', "%#{name.downcase}%").
+    #   order(:name)
+    # end
   end
 end

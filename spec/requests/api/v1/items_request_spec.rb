@@ -140,7 +140,37 @@ describe 'items API' do
       expect(updated_item.name).to_not eq(og_name)
       expect(updated_item.name).to eq(item_params[:name])
     end
+
+    it 'can return one item by a search queried on name—then description if no name matches—and return the first result ordered by name' do
+      create(:item, name: 'Alphabet Soup')
+      create(:item, name: 'Alphabet GOOG')
+      create(:item, description: 'A description that is different.')
+
+      # Return the first match based on alphabetical order
+      search_params = { name: 'alPHa' }
+      get '/api/v1/items/find', params: search_params
+      
+      search_result = JSON.parse(response.body, symbolize_names: true)
+      expect(search_result.size).to eq(1)
+      expect(search_result[:data][:attributes][:name]).to eq('Alphabet GOOG')
+      
+      # Return the only matching item
+      search_params = { name: 'soup' }
+      get '/api/v1/items/find', params: search_params
+
+      search_result = JSON.parse(response.body, symbolize_names: true)
+      expect(search_result[:data][:attributes][:name]).to eq('Alphabet Soup')
+
+      search_params = { name: 'diff' }
+      get '/api/v1/items/find', params: search_params
+
+      # If no item names match query return one item with a matching description.
+      search_result = JSON.parse(response.body, symbolize_names: true)
+      expect(search_result[:data][:attributes][:description]).to eq('A description that is different.')
+    end
   end
+
+  # --> SAD PATH
 
   describe 'sad path' do
     it 'returns 404 if a requested item does not exist' do
@@ -213,6 +243,19 @@ describe 'items API' do
 
       expect(response).to_not be_successful
       expect(actual_errors).to eq(expected_errors)
+    end
+
+    it 'when find one item query has no matches it successfully renders json with an empty hash' do
+      # Return the first match based on alphabetical order
+      search_params = { name: 'no items exist!' }
+
+      get '/api/v1/items/find', params: search_params
+      
+      search_result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(search_result).to have_key :data
+      expect(search_result[:data]).to be_a Hash
+      expect(search_result[:data].keys).to be_empty
     end
   end
 end

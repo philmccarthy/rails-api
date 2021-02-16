@@ -9,5 +9,11 @@ class ApplicationRecord < ActiveRecord::Base
         limit(results_per_page).offset(results_per_page * (page_number - 1))
       end
     end
+
+    def find_all(name)
+      return [] if name.blank?
+      where('lower(name) LIKE ?', "%#{name.downcase}%").
+      order(:name)
+    end
   end
 end
