@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'items API' do
+describe 'items API requests' do
   describe 'happy path' do
     it 'sends a list of items with proper JSON format' do
       create_list(:item, 5)
@@ -38,6 +38,34 @@ describe 'items API' do
         expect(item[:attributes]).to have_key :merchant_id
         expect(item[:attributes][:merchant_id]).to be_a Numeric
       end
+    end
+
+    it 'accepts query param of page number and returns paginated results' do
+      create_list(:item, 51)
+      item_on_page_1 = Item.first
+      item_on_last_page = Item.last
+
+      item_on_page_5 = Item.forty_two
+      
+      get '/api/v1/items', params: { per_page: '10', page: 5 }
+
+      page_5_items = JSON.parse(response.body, symbolize_names: true)
+
+      check_for_correct_item = page_5_items[:data].any? do |item| 
+        item[:id] == item_on_page_5.id.to_s
+      end
+      
+      check_for_page_1_item = page_5_items[:data].any? do |item| 
+        item[:id] == item_on_page_1.id.to_s
+      end
+      
+      check_for_last_page_item = page_5_items[:data].any? do |item| 
+        item[:id] == item_on_last_page.id.to_s
+      end
+
+      expect(check_for_correct_item).to be true
+      expect(check_for_page_1_item).to be false
+      expect(check_for_last_page_item).to be false
     end
 
     it 'returns data for one item when requested by its id' do
@@ -116,10 +144,12 @@ describe 'items API' do
       expect(created_item.merchant_id).to eq(item_params[:merchant_id])
     end
 
-    it 'can destroy an item' do
-      item = create(:item)
+    it 'can destroy an item and its associated invoices where its the only item' do
+      item = create(:item_with_invoices)
+      expect(Invoice.count).to eq(5)
       
       expect{ delete "/api/v1/items/#{item.id}" }.to change(Item, :count).by(-1)
+      expect(Invoice.count).to eq(0)
 
       expect(response).to be_successful
 
@@ -141,12 +171,12 @@ describe 'items API' do
       expect(updated_item.name).to eq(item_params[:name])
     end
 
-    it 'can return one item by a search queried on name—then description if no name matches—and return the first result ordered by name' do
+    it 'can return one item by a search of name—then description if no name matches—and return first result based on order by name' do
       create(:item, name: 'Alphabet Soup')
       create(:item, name: 'Alphabet GOOG')
       create(:item, description: 'A description that is different.')
 
-      # Return the first match based on alphabetical order
+      # Return the first match based on alphabetical order.
       search_params = { name: 'alPHa' }
       get '/api/v1/items/find', params: search_params
       
@@ -154,7 +184,7 @@ describe 'items API' do
       expect(search_result.size).to eq(1)
       expect(search_result[:data][:attributes][:name]).to eq('Alphabet GOOG')
       
-      # Return the only matching item
+      # Return the only matching item.
       search_params = { name: 'soup' }
       get '/api/v1/items/find', params: search_params
 
