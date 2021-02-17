@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe 'items API requests' do
-  describe 'happy path' do
+describe 'Items API requests' do
+  describe 'Happy Path' do
     it 'sends a list of items with proper JSON format' do
       create_list(:item, 5)
       

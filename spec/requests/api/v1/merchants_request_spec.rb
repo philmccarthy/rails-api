@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe 'merchants API requests' do
-  describe 'happy path' do
+describe 'Merchants API requests' do
+  describe 'Happy Path' do
     it 'sends a list of merchants with proper JSON format' do
       create_list(:merchant, 5)
       

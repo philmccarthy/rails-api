@@ -5,12 +5,12 @@ class Api::V1::ItemsController < ApplicationController
     if @merchant
       render json: ItemSerializer.new(@merchant.items)
     else
-      render json: ItemSerializer.new(Item.retrieve_many results_per_page, page_number)
+      render json: ItemSerializer.new(Item.retrieve_many(results_per_page, page_number))
     end
   end
 
   def show
-    render json: ItemSerializer.new(Item.find params[:id])
+    render json: ItemSerializer.new(Item.find(params[:id]))
   end
 
   def create
@@ -28,13 +28,8 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find
-    if params[:name] && (params[:min_price] || params[:max_price])
-      render json: {
-        message: 'Invalid Parameters',
-        errors: [
-          'Cannot combine name and either min_price or max_price. Try again.'
-        ], 
-      }
+    if params_invalid?
+      render json: invalid_params_error
     else
       item_match = Item.find_one(params)
       item_match.present? ? (render json: ItemSerializer.new(item_match)) : (render json: { data: {} })
@@ -52,9 +47,20 @@ class Api::V1::ItemsController < ApplicationController
     end
   end
 
+  def params_invalid?
+    params[:name] && (params[:min_price] || params[:max_price])
+  end
+
+  def invalid_params_error
+    {
+      message: 'Invalid Parameters',
+      errors: [
+        'Cannot combine name and either min_price or max_price. Try again.'
+      ]
+    }
+  end
+
   def set_merchant
-    if params[:merchant_id]
-      @merchant = Merchant.find(params[:merchant_id])
-    end
+    @merchant = Merchant.find(params[:merchant_id]) if params[:merchant_id]
   end
 end
