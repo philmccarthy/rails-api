@@ -89,8 +89,36 @@ describe 'Revenue API requests' do
       expect(most_revenue_items[:data][1][:attributes][:revenue]).to eq(100)
     end
 
-    it 'sends a list of merchants with the most items sold' do
-      
+    describe 'Sad Path' do
+      it 'returns an error if given a quantity parameter that isnt Numeric' do
+        get '/api/v1/revenue/items', params: { quantity: 'asdfg' }
+
+        invalid_parameters_response = JSON.parse(response.body, symbolize_names: true)
+
+        expect(invalid_parameters_response).to be_a Hash
+
+        expect(invalid_parameters_response).to have_key :message
+        expect(invalid_parameters_response[:message]).to eq('Invalid Parameters')
+        
+        expect(invalid_parameters_response).to have_key :error
+        expect(invalid_parameters_response[:error]).to be_an Array
+        expect(invalid_parameters_response[:error][0]).to eq('quantity parameter was invalid. Try again')
+      end
+
+      it 'returns an error if given a quantity parameter that is negative' do
+        get '/api/v1/revenue/items', params: { quantity: '-100' }
+
+        invalid_parameters_response = JSON.parse(response.body, symbolize_names: true)
+
+        expect(invalid_parameters_response).to be_a Hash
+
+        expect(invalid_parameters_response).to have_key :message
+        expect(invalid_parameters_response[:message]).to eq('Invalid Parameters')
+        
+        expect(invalid_parameters_response).to have_key :error
+        expect(invalid_parameters_response[:error]).to be_an Array
+        expect(invalid_parameters_response[:error][0]).to eq('quantity parameter was invalid. Try again')
+      end
     end
   end
 end
