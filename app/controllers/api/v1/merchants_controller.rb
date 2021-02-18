@@ -18,6 +18,9 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def most_items_sold
+    # Project spec for this endpoint requires 
+    # an error if no quantity param given
+    return invalid_quantity_param_error if params[:quantity].nil?
     render json: ItemsSoldSerializer.new(Merchant.most_items_sold(params[:quantity]))
   end
 

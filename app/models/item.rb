@@ -26,11 +26,11 @@ class Item < ApplicationRecord
     def top_ten_by_revenue(quantity)
       quantity = 10 if quantity.nil?
       Item.select('items.*, SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
-        joins(invoice_items: {invoice: :transactions}).
-        where(invoices: { status: 'shipped' }, transactions: { result: 'success' }).
-        group(:id).
-        order(revenue: :desc).
-        limit(quantity)
+      joins(invoice_items: {invoice: :transactions}).
+      where(invoices: { status: 'shipped' }, transactions: { result: 'success' }).
+      group(:id).
+      order(revenue: :desc).
+      limit(quantity)
     end
 
     private
@@ -38,7 +38,7 @@ class Item < ApplicationRecord
     def find_item_where_price_within_range
       order(:name).
       find_by('unit_price >= ? AND unit_price <= ?',
-        @@min_price_query.to_f, @@max_price_query.to_f)
+      @@min_price_query.to_f, @@max_price_query.to_f)
     end
 
     def find_item_where_price_above_minimum

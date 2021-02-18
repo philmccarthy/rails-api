@@ -8,17 +8,22 @@ class Merchant < ApplicationRecord
   class << self
     def most_revenue(quantity)
       Merchant.select(
-        'merchants.*, 
-        SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
-        joins(invoices: [:transactions, :invoice_items]).
-        where(transactions: { result: 'success' }, invoices: { status: 'shipped' }).
-        group(:id).
-        order(revenue: :desc).
-        limit(quantity)
+      'merchants.*,
+      SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
+      joins(invoices: [:transactions, :invoice_items]).
+      where(transactions: { result: 'success' }, invoices: { status: 'shipped' }).
+      group(:id).
+      order(revenue: :desc).
+      limit(quantity)
     end
 
     def most_items_sold(quantity)
-      require 'pry'; binding.pry
+      Merchant.joins(invoices: [:transactions, :invoice_items]).
+      select('merchants.*, SUM(invoice_items.quantity) AS count').
+      where(transactions: { result: 'success' }, invoices: { status: 'shipped' }).
+      group('merchants.id').
+      order('count desc').
+      limit(quantity)
     end
   end
 end
