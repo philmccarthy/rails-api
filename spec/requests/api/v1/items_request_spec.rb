@@ -261,9 +261,7 @@ describe 'Items API requests' do
     end
   end
 
-  # --> SAD PATH
-
-  describe 'sad path' do
+  describe 'Sad Path' do
     it 'returns 404 if a requested item does not exist' do
       non_existent_id = 1231231
 

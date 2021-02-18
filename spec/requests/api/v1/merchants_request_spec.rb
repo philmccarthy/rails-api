@@ -152,9 +152,7 @@ describe 'Merchants API requests' do
     end
   end
 
-  # --> SAD PATH
-
-  describe 'sad path' do
+  describe 'Sad Path' do
     it 'returns page 1 if given a pagination request for page 0 or negative' do
       create_list(:merchant, 5)
 
