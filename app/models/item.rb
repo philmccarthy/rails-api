@@ -10,6 +10,16 @@ class Item < ApplicationRecord
   validates :unit_price, numericality: { greater_than: 0 }
 
   class << self
+    def top_ten_by_revenue(quantity)
+      quantity = 10 if quantity.nil?
+      Item.select('items.*, SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
+      joins(invoice_items: {invoice: :transactions}).
+      where(invoices: { status: 'shipped' }, transactions: { result: 'success' }).
+      group(:id).
+      order(revenue: :desc).
+      limit(quantity)
+    end
+
     def find_one(params)
       parse_query(params)
       if price_range_query?
@@ -21,16 +31,6 @@ class Item < ApplicationRecord
       else
         find_item_by_name
       end
-    end
-
-    def top_ten_by_revenue(quantity)
-      quantity = 10 if quantity.nil?
-      Item.select('items.*, SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
-      joins(invoice_items: {invoice: :transactions}).
-      where(invoices: { status: 'shipped' }, transactions: { result: 'success' }).
-      group(:id).
-      order(revenue: :desc).
-      limit(quantity)
     end
 
     private
