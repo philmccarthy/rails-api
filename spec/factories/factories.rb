@@ -28,13 +28,6 @@ FactoryBot.define do
         create_list(:item_with_invoices, evaluator.items_count, merchant: merchant)
       end
     end
-
-    # factory :merchant_with_revenue do
-    #   transient do
-    #     items_count { 10 }
-
-    #   end
-    # end
   end
 
   factory :customer do
@@ -52,13 +45,13 @@ FactoryBot.define do
   factory :invoice do
     customer { create(:customer) }
     merchant { create(:merchant) }
-    status { ['packaged', 'shipped', 'returned'].sample }
+    status { 'shipped' }
   end
 
   factory :transaction do
     invoice { nil }
-    credit_card_number { "MyString" }
-    credit_card_expiration_date { "MyString" }
-    result { "MyString" }
+    credit_card_number { "1234123412341234" }
+    credit_card_expiration_date { "01/21" }
+    result { 'success' }
   end
 end

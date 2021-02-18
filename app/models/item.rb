@@ -23,6 +23,16 @@ class Item < ApplicationRecord
       end
     end
 
+    def top_ten_by_revenue(quantity)
+      quantity = 10 if quantity.nil?
+      Item.select('items.*, SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
+        joins(invoice_items: {invoice: :transactions}).
+        where(invoices: { status: 'shipped' }, transactions: { result: 'success' }).
+        group(:id).
+        order(revenue: :desc).
+        limit(quantity)
+    end
+
     private
 
     def find_item_where_price_within_range
@@ -50,8 +60,7 @@ class Item < ApplicationRecord
 
     def search_description(string)
       order(:name).
-      find_by('lower(description) LIKE ?',
-      "%#{string.downcase}%")
+      find_by('description ILIKE ?', "%#{string}%")
     end
 
     def parse_query(params)
