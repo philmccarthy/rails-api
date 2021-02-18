@@ -28,7 +28,7 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find
-    if params_invalid?
+    if query_params_invalid?
       render json: invalid_params_error
     else
       item_match = Item.find_one(params)
@@ -47,7 +47,11 @@ class Api::V1::ItemsController < ApplicationController
     end
   end
 
-  def params_invalid?
+  def set_merchant
+    @merchant = Merchant.find(params[:merchant_id]) if params[:merchant_id]
+  end
+
+  def query_params_invalid?
     params[:name] && (params[:min_price] || params[:max_price])
   end
 
@@ -58,9 +62,5 @@ class Api::V1::ItemsController < ApplicationController
         'Cannot combine name and either min_price or max_price. Try again.'
       ]
     }
-  end
-
-  def set_merchant
-    @merchant = Merchant.find(params[:merchant_id]) if params[:merchant_id]
   end
 end

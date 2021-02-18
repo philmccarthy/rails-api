@@ -33,4 +33,26 @@ class ApplicationController < ActionController::API
       },
       status: :unprocessable_entity
   end
+
+  def invalid_quantity_param_error
+    render json:
+    {
+      message: 'Invalid Parameters',
+      error: [
+        'quantity parameter was invalid. Try again'
+      ]
+    },
+    status: :bad_request
+  end
+
+  def invalid_quantity_param?
+    # Guard against case when default quantity applies
+    return false if params[:quantity].nil?
+    # Invalidate query param if it's a blank string
+    params[:quantity] == '' ||
+    # or if it's is not containing a number
+    !/\A\d+\z/.match(params[:quantity]) ||
+    # or if when converted to an integer, it's negative
+    params[:quantity].to_i < 0
+  end
 end

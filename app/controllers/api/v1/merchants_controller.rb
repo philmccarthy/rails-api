@@ -2,9 +2,7 @@ class Api::V1::MerchantsController < ApplicationController
   before_action :set_item, only: [:show]
 
   def index
-    render json: MerchantSerializer.new(
-      Merchant.retrieve_many results_per_page, page_number
-    )
+    render json: MerchantSerializer.new(Merchant.retrieve_many(results_per_page, page_number))
   end
 
   def show
@@ -16,9 +14,11 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def find_all
-    render json: MerchantSerializer.new(
-      Merchant.find_all(params[:name])
-    )
+    render json: MerchantSerializer.new(Merchant.find_all(params[:name]))
+  end
+
+  def most_items_sold
+    render json: ItemsSoldSerializer.new(Merchant.most_items_sold(params[:quantity]))
   end
 
   private
