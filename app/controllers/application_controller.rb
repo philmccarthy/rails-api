@@ -46,13 +46,13 @@ class ApplicationController < ActionController::API
   end
 
   def invalid_quantity_param?
-    # Guard against case when default quantity applies
+    # Guard against cases when nil applies default qty
     return false if params[:quantity].nil?
-    # Invalidate query param if it's a blank string
-    params[:quantity] == '' ||
-    # or if it's is not containing a number
+    # Invalidate if it's a blank string
+    params[:quantity].blank? ||
+    # or if the string does not contain a number
     !/\A\d+\z/.match(params[:quantity]) ||
-    # or if when converted to an integer, it's negative
+    # or if after integer-ified it's negative
     params[:quantity].to_i < 0
   end
 end

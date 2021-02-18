@@ -2,7 +2,7 @@ class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 
   class << self
-    def retrieve_many results_per_page, page_number
+    def retrieve_many(results_per_page, page_number)
       if page_number == 1
         limit(results_per_page)
       else
@@ -12,7 +12,7 @@ class ApplicationRecord < ActiveRecord::Base
 
     def find_all(name)
       return [] if name.blank?
-      where('lower(name) LIKE ?', "%#{name.downcase}%").
+      where('name ILIKE ?', "%#{name}%").
       order(:name)
     end
   end
