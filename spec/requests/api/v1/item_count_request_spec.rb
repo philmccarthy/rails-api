@@ -15,7 +15,7 @@ describe 'Item Count API Request' do
       create(:transaction, invoice: @invoice_2)
     end
 
-    it 'sends a list of merchants ranked by count of items sold' do
+    xit 'sends a list of merchants ranked by count of items sold' do
       get '/api/v1/merchants/most_items', params: { quantity: 2 }
 
       merchants_by_item_count = JSON.parse(response.body, symbolize_names: true)
