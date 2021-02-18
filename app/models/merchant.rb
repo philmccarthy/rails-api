@@ -16,5 +16,9 @@ class Merchant < ApplicationRecord
         order(revenue: :desc).
         limit(quantity)
     end
+
+    def most_items_sold(quantity)
+      require 'pry'; binding.pry
+    end
   end
 end
