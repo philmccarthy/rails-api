@@ -10,7 +10,7 @@ describe('Revenue API requests', use_before: true) do
     @merchant_2 = create(:merchant_with_items)
     @invoice_2 = create(:invoice, merchant: @merchant_2, status: 'shipped')
     # Invoice 3 should not count toward revenue because invoice status is returned
-    @invoice_3 = create(:invoice, merchant: @merchant_2, status: 'returned')
+    @invoice_3 = create(:invoice, merchant: @merchant_2, status: 'packaged')
     @invoice_4 = create(:invoice, merchant: @merchant_2, status: 'shipped')
     create(:invoice_item, item: @merchant_2.items.first, invoice: @invoice_2, quantity: 20, unit_price: 10.00)
     create(:invoice_item, item: @merchant_2.items.second, invoice: @invoice_2, quantity: 1, unit_price: 100.00)
@@ -237,7 +237,7 @@ describe('Revenue API requests', use_before: true) do
     end
 
     describe 'Sad Path' do
-      it 'returns an error if the merchant requested cant be found' do
+      it 'returns an error if the merchant requested cant be found', use_before: false do
         get "/api/v1/revenue/merchants/12345678991234565"
         
         expect(response).to_not be_successful
@@ -253,6 +253,92 @@ describe('Revenue API requests', use_before: true) do
         expect(error_object).to have_key :errors
         expect(error_object[:errors]).to be_an Array
         expect(error_object[:errors][0]).to eq("Couldn't find Merchant with 'id'=12345678991234565")
+      end
+    end
+  end
+
+  describe 'Potential Revenue of Unshipped Orders' do
+    describe 'Happy Path' do
+      it 'returns a list of unshipped orders and the potential revenue each represents' do
+        get '/api/v1/revenue/unshipped', params: { quantity: 1 }
+
+        expect(response).to be_successful
+
+        unshipped_orders = JSON.parse(response.body, symbolize_names: true)
+
+        expect(unshipped_orders).to be_a Hash
+
+        expect(unshipped_orders).to have_key :data
+        expect(unshipped_orders[:data]).to be_an Array
+        
+        expect(unshipped_orders[:data][0]).to have_key :id
+        expect(unshipped_orders[:data][0][:id]).to be_a String
+
+        expect(unshipped_orders[:data][0]).to have_key :type
+        expect(unshipped_orders[:data][0][:type]).to be_a String
+
+        expect(unshipped_orders[:data][0]).to have_key :attributes
+        expect(unshipped_orders[:data][0][:attributes]).to be_a Hash
+
+        expect(unshipped_orders[:data][0][:attributes]).to have_key :potential_revenue
+        expect(unshipped_orders[:data][0][:attributes][:potential_revenue]).to be_a Numeric
+      end
+      
+      it 'returns a list of all unshipped orders if given a super large qty parameter' do
+        get '/api/v1/revenue/unshipped', params: { quantity: 10000 }
+
+        expect(response).to be_successful
+
+        unshipped_orders = JSON.parse(response.body, symbolize_names: true)
+
+        expect(unshipped_orders[:data].size).to eq(1)
+      end
+    end
+
+    describe 'Sad Path' do
+      it 'returns an error if given a quantity parameter that isnt Numeric', use_before: false do
+        get '/api/v1/revenue/unshipped', params: { quantity: 'asdfg' }
+  
+        error_object = JSON.parse(response.body, symbolize_names: true)
+  
+        expect(error_object).to be_a Hash
+  
+        expect(error_object).to have_key :message
+        expect(error_object[:message]).to eq('Invalid Parameters')
+        
+        expect(error_object).to have_key :error
+        expect(error_object[:error]).to be_an Array
+        expect(error_object[:error][0]).to eq('quantity parameter was invalid. Try again')
+      end
+
+      it 'returns an error if given a quantity parameter that is negative', use_before: false do
+        get '/api/v1/revenue/unshipped', params: { quantity: '-100' }
+  
+        error_object = JSON.parse(response.body, symbolize_names: true)
+  
+        expect(error_object).to be_a Hash
+  
+        expect(error_object).to have_key :message
+        expect(error_object[:message]).to eq('Invalid Parameters')
+        
+        expect(error_object).to have_key :error
+        expect(error_object[:error]).to be_an Array
+        expect(error_object[:error][0]).to eq('quantity parameter was invalid. Try again')
+      end
+
+      it 'returns an error if given a quantity parameter that is blank', use_before: false do
+        get '/api/v1/revenue/unshipped', params: { quantity: '' }
+  
+        error_object = JSON.parse(response.body, symbolize_names: true)
+  
+        expect(error_object).to be_a Hash
+  
+        expect(error_object).to have_key :message
+        expect(error_object[:message]).to eq('Invalid Parameters')
+        
+        expect(error_object).to have_key :error
+        expect(error_object[:error]).to be_an Array
+        expect(error_object[:error][0]).to eq('quantity parameter was invalid. Try again')
       end
     end
   end
