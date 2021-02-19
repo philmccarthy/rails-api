@@ -7,6 +7,7 @@ class Invoice < ApplicationRecord
 
   class << self
     def unshipped_potential_revenue(quantity)
+      quantity = 10 if quantity.nil?
       Invoice.joins(:invoice_items).
       where(status: 'packaged').
       select('invoices.*, (invoice_items.quantity * invoice_items.unit_price) AS potential_revenue')
