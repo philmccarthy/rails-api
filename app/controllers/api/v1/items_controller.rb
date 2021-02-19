@@ -29,7 +29,7 @@ class Api::V1::ItemsController < ApplicationController
 
   def find
     if query_params_invalid?
-      render json: invalid_params_error
+      render json: invalid_params_error, status: :bad_request
     else
       item_match = Item.find_one(params)
       item_match.present? ? (render json: ItemSerializer.new(item_match)) : (render json: { data: {} })
