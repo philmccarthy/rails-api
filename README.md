@@ -206,12 +206,19 @@ GET /api/v1/revenue/merchants/:id
 
 ### Get Items with Most Revenue
 
-Parameter: `quantity?` is _not_ required. Defaults to 10 results.
+Optional Parameter: `?quantity` is _not_ required. Defaults to 10 results.
 
 ```
-GET /api/v1/items/revenue?quantity=x
+GET /api/v1/revenue/items?quantity=x
 ```
 
+### Get Potential Revenue of Unshipped Invoices
+
+Optional Parameter: `?quantity` is _not_ required. Defaults to 10 results.
+
+```
+GET /api/v1/revenue/unshipped?quantity=x
+```
 
 <!-- CONTACT -->
 ## Contact
