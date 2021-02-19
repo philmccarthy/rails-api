@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class ItemsSoldSerializer
   include FastJsonapi::ObjectSerializer
   attribute :name

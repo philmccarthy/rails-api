@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class UnshippedOrderSerializer
   include FastJsonapi::ObjectSerializer
   attribute :potential_revenue do |invoice|
