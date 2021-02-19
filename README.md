@@ -216,9 +216,7 @@ GET /api/v1/items/revenue?quantity=x
 <!-- CONTACT -->
 ## Contact
 
-Phil McCarthy - [LinkedIn](https://linkedin.com/in/pjmcc)
-
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Phil McCarthy — [LinkedIn](https://linkedin.com/in/pjmcc) — [philmccarthy.dev](https://philmccarthy.dev)
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
