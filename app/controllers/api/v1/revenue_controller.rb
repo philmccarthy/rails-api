@@ -8,8 +8,10 @@ class Api::V1::RevenueController < ApplicationController
   end
   
   def items_with_most_revenue
+    # Project spec for this endpoint allows
+    # quantity param to be optional
     return invalid_quantity_param_error if invalid_quantity_param?
-    render json: ItemRevenueSerializer.new(Item.top_ten_by_revenue(params[:quantity]))
+    render json: ItemRevenueSerializer.new(Item.most_revenue(params[:quantity]))
   end
 
   def merchant_revenue
