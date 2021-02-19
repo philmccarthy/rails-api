@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe('Item Count API Request', use_before: true) do
+describe 'Item Count API Request', use_before: true do
   before(:each, use_before: true) do
     @merchant_1 = create(:merchant_with_items)
     @invoice_1 = create(:invoice, merchant: @merchant_1, status: 'shipped')
@@ -14,7 +14,7 @@ describe('Item Count API Request', use_before: true) do
     create(:transaction, invoice: @invoice_2)
   end
   
-  describe'Happy Path' do
+  describe 'Happy Path' do
     it 'sends a list of merchants ranked by count of items sold' do
       get '/api/v1/merchants/most_items', params: { quantity: 2 }
 
