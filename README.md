@@ -67,10 +67,18 @@ Areas of exploration and learning on this project included:
 ## Getting Started
 
 1. Clone this repo
-2. Install gem packages: `bundle install`
+2. Install gem packages: `bundle`
 3. Setup the database. A pgdump is included in `./db` to seed the database
 
     `rails db:{create,migrate,seed}`
+4. Run the RSpec test suite: `bundle exec rspec`
+5. Start your local server: `rails s`
+
+A Postman test suite also exists to test the endpoints served via localhost!
+
+- Download the [Postman Collection](https://www.getpostman.com/collections/f05c0b0f67b6dfc23a65) JSON file _(right click the link and 'save as')_
+- In Postman, in the top left corner, click on the 'Import' button, and drag the downloaded JSON file over the interface or use the file selector to locate the file on your operating system. Click 'Import' to continue
+- In the top left corner of the Postman interface, you’ll see a 'Runner' button. Click that and a new Postman window will appear. From here, you can select 'Rails API (by Phil McCarthy)' from the list of 'All Collections'
 
 ### Prerequisites
 
