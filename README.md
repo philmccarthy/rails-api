@@ -83,7 +83,7 @@ A Postman test suite also exists to test the endpoints served via localhost!
 ### Prerequisites
 
 * Ruby 2.5.3
-* Rails 5.2
+* Rails 5.2.4
 
 <!-- USAGE EXAMPLES -->
 ## ReST Endpoints
