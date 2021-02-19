@@ -183,6 +183,10 @@ Parameter(s): `?name`, `min_price` and `max_price`.
 - Name _cannot_ be combined with either/both price parameters
 - Minimum price and maximum price _can_ be used alone or together to query a price range
 
+```
+GET /api/v1/items/find?name=x OR ?min_price=x&max_price=y
+```
+
 ### Get Merchants with Most Revenue
 
 Required Parameter: `?quantity` is required
