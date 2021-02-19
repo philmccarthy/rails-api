@@ -9,8 +9,12 @@ class Item < ApplicationRecord
   validates :description, presence: true
   validates :unit_price, numericality: { greater_than: 0 }
 
+  @min_price_query = nil
+  @max_price_query = nil
+  @name_query = nil
+
   class << self
-    def top_ten_by_revenue(quantity)
+    def most_revenue(quantity)
       quantity = 10 if quantity.nil?
       Item.select('items.*, SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
       joins(invoice_items: {invoice: :transactions}).
@@ -38,24 +42,24 @@ class Item < ApplicationRecord
     def find_item_where_price_within_range
       order(:name).
       find_by('unit_price >= ? AND unit_price <= ?',
-      @@min_price_query.to_f, @@max_price_query.to_f)
+      @min_price_query.to_f, @max_price_query.to_f)
     end
 
     def find_item_where_price_above_minimum
       order(:name).
-      find_by('unit_price >= ?', @@min_price_query.to_f)
+      find_by('unit_price >= ?', @min_price_query.to_f)
     end
 
     def find_item_where_price_under_maximum
       order(:name).
-      find_by('unit_price <= ?', @@max_price_query.to_f)
+      find_by('unit_price <= ?', @max_price_query.to_f)
     end
 
     def find_item_by_name
-      return if @@name_query.blank?
-      name_match = find_all(@@name_query).first
+      return if @name_query.blank?
+      name_match = find_all(@name_query).first
       return name_match if name_match.present?
-      search_description(@@name_query)
+      search_description(@name_query)
     end
 
     def search_description(string)
@@ -64,20 +68,20 @@ class Item < ApplicationRecord
     end
 
     def parse_query(params)
-      @@name_query, @@min_price_query, @@max_price_query =
+      @name_query, @min_price_query, @max_price_query =
       [params[:name], params[:min_price], params[:max_price]]
     end
 
     def price_range_query?
-      @@min_price_query && @@max_price_query
+      min_price_query? && max_price_query?
     end
 
     def min_price_query?
-      @@min_price_query.present?
+      @min_price_query.present?
     end
 
     def max_price_query?
-      @@max_price_query.present?
+      @max_price_query.present?
     end
   end
 end
