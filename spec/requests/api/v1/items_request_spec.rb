@@ -111,7 +111,7 @@ describe 'Items API requests' do
       expect(items).to be_a Hash
       expect(items[:data]).to be_an Array
 
-      expect(items[:data].size).to eq(10)
+      expect(items[:data].size).to eq(5)
     end
 
     it "can accept a request to create an item and return that new item's data" do
@@ -171,7 +171,7 @@ describe 'Items API requests' do
       expect(updated_item.name).to eq(item_params[:name])
     end
 
-    it 'can return one item by a search of name—then description if no name matches—and return first result based on order by name' do
+    it 'can return one item by a search of name and return first result based on order by name' do
       create(:item, name: 'Alphabet Soup')
       create(:item, name: 'Alphabet GOOG')
       create(:item, description: 'A description that is different.')
@@ -259,6 +259,20 @@ describe 'Items API requests' do
 
       expect(search_result[:data][:attributes][:name]).to eq('Alphabet Soup')
     end
+
+    it 'when no item matches, it responds successfully with an empty hash' do
+      search_params = { name: 'no items exist!' }
+
+      get '/api/v1/items/find', params: search_params
+      
+      search_result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to be_successful
+
+      expect(search_result).to have_key :data
+      expect(search_result[:data]).to be_a Hash
+      expect(search_result[:data].keys).to be_empty
+    end
   end
 
   describe 'Sad Path' do
@@ -334,24 +348,14 @@ describe 'Items API requests' do
       expect(actual_errors).to eq(expected_errors)
     end
 
-    it 'when find one item query has no matches it successfully renders json with an empty hash' do
-      search_params = { name: 'no items exist!' }
-
-      get '/api/v1/items/find', params: search_params
-      
-      search_result = JSON.parse(response.body, symbolize_names: true)
-
-      expect(search_result).to have_key :data
-      expect(search_result[:data]).to be_a Hash
-      expect(search_result[:data].keys).to be_empty
-    end
-
     it 'throws an error if the find one endpoint is given name and either/both price params' do
       search_params = { name: 'All the things', min_price: 50, max_price: 100 }
 
       get '/api/v1/items/find', params: search_params
       
       search_result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to_not be_successful
 
       expect(search_result).to have_key :message
       expect(search_result[:message]).to eq('Invalid Parameters')

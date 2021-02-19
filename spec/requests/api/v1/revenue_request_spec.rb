@@ -214,7 +214,6 @@ describe('Revenue API requests', use_before: true) do
         get "/api/v1/revenue/merchants/#{@merchant_1.id}"
 
         merchant_with_revenue = JSON.parse(response.body, symbolize_names: true)
-        require 'pry'; binding.pry
 
         expect(response).to be_successful
 
