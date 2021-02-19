@@ -4,14 +4,18 @@ module Api
       before_action :set_item, only: [:show]
 
       def index
-        render json: MerchantSerializer.new(Merchant.retrieve_many(results_per_page, page_number))
+        render json: MerchantSerializer.new(
+          Merchant.retrieve_many(results_per_page, page_number)
+        )
       end
 
       def show
         if @item
           render json: MerchantSerializer.new(@item.merchant)
         else
-          render json: MerchantSerializer.new(Merchant.find(params[:id]))
+          render json: MerchantSerializer.new(
+            Merchant.find(params[:id])
+          )
         end
       end
 

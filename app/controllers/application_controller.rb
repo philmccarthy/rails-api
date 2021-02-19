@@ -45,7 +45,7 @@ class ApplicationController < ActionController::API
         message: 'Your request failed...perhaps you could be better.',
         errors: exception.record.errors.full_messages
       },
-        status: :unprocessable_entity
+      status: :unprocessable_entity
   end
 
   def invalid_quantity_param_error
@@ -56,6 +56,6 @@ class ApplicationController < ActionController::API
           'quantity parameter was invalid. Try again'
         ]
       },
-        status: :bad_request
+      status: :bad_request
   end
 end
