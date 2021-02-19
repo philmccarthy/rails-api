@@ -7,10 +7,8 @@ class Merchant < ApplicationRecord
 
   class << self
     def most_revenue(quantity)
-      Merchant.select(
-      'merchants.*,
-      SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
-      joins(invoices: [:transactions, :invoice_items]).
+      Merchant.joins(invoices: [:transactions, :invoice_items]).
+      select('merchants.*, SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
       where(transactions: { result: 'success' }, invoices: { status: 'shipped' }).
       group(:id).
       order(revenue: :desc).
@@ -27,9 +25,8 @@ class Merchant < ApplicationRecord
     end
 
     def total_revenue(merchant_id)
-      Merchant.select(
-      'merchants.*, SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
-      joins(invoices: [:transactions, :invoice_items]).
+      Merchant.joins(invoices: [:transactions, :invoice_items]).
+      select('merchants.*, SUM(invoice_items.quantity * invoice_items.unit_price) AS revenue').
       where(
         merchants: { id: merchant_id },
         transactions: {result: 'success' },
