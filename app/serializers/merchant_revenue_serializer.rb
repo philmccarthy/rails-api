@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MerchantRevenueSerializer
   include FastJsonapi::ObjectSerializer
   attribute :revenue do |merchant|
