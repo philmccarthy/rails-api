@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class InvoiceItem < ApplicationRecord
   belongs_to :item
   belongs_to :invoice
@@ -7,10 +9,6 @@ class InvoiceItem < ApplicationRecord
   after_destroy :destroy_empty_invoice
 
   def destroy_empty_invoice
-    invoice.destroy if !invoice.invoice_items.any?
+    invoice.destroy if invoice.invoice_items.none?
   end
 end
-
-
-# Order with highest potential revenue
-#   InvoiceItem.select('quantity * unit_price AS potential_revenue').where(invoice_id: 4844)

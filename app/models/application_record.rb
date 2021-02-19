@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ApplicationRecord < ActiveRecord::Base
   self.abstract_class = true
 
@@ -12,8 +14,9 @@ class ApplicationRecord < ActiveRecord::Base
 
     def find_all(name)
       return [] if name.blank?
-      where('name ILIKE ?', "%#{name}%").
-      order(:name)
+
+      where('name ILIKE ?', "%#{name}%")
+        .order(:name)
     end
   end
 end
