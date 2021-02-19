@@ -45,7 +45,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This Rails backend-only API was built in 6 days while I was in Mod 3 of [Turing School's](https://turing.io) Backend Engineering program.
+This Rails-backed JSON API was built in 6 days while I was in Mod 3 of [Turing School's](https://turing.io) Backend Engineering program.
 
 Areas of exploration and learning on this project included:
 
@@ -54,6 +54,7 @@ Areas of exploration and learning on this project included:
 * Test API exposure with RSpec and Postman
 * Compose advanced ActiveRecord queries to analyze information stored in PostgreSQL database
 * Write SQL statements without the assistance of an ORM
+* Implement json:api standards
 
 
 ### Built With
