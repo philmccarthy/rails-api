@@ -55,6 +55,7 @@ Areas of exploration and learning on this project included:
 * Compose advanced ActiveRecord queries to analyze information stored in PostgreSQL database
 * Write SQL statements without the assistance of an ORM
 * Implement json:api standards
+* Add custom error responses for invalid API requests
 
 
 ### Built With
