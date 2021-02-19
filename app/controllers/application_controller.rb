@@ -14,6 +14,17 @@ class ApplicationController < ActionController::API
     1
   end
 
+  def invalid_quantity_param?
+    # Guard against cases when nil applies default qty
+    return false if params[:quantity].nil?
+    # Invalidate if it's a blank string
+    params[:quantity].blank? ||
+    # or if the string does not contain a number
+    !/\A\d+\z/.match(params[:quantity]) ||
+    # or if after integer-ified it's negative
+    params[:quantity].to_i < 0
+  end
+
   def render_not_found_response(exception)
     render json: 
       {
@@ -43,16 +54,5 @@ class ApplicationController < ActionController::API
       ]
     },
     status: :bad_request
-  end
-
-  def invalid_quantity_param?
-    # Guard against cases when nil applies default qty
-    return false if params[:quantity].nil?
-    # Invalidate if it's a blank string
-    params[:quantity].blank? ||
-    # or if the string does not contain a number
-    !/\A\d+\z/.match(params[:quantity]) ||
-    # or if after integer-ified it's negative
-    params[:quantity].to_i < 0
   end
 end
